@@ -6,14 +6,14 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
-webhookRoute = Blueprint('Webhook', __name__, url_prefix='/webhook')
+webhook = Blueprint('Webhook', __name__, url_prefix='/webhook')
 
 db = client['webhook_data']
 collection = db['events']
 
 
-@webhookRoute.route('/webhook', methods=['POST'])
-def webhook():
+@webhook.route('/webhook', methods=['POST'])
+def webhookData():
     data = request.json
     event_type = request.headers.get('X-GitHub-Event')
     if event_type in ['push', 'pull_request', 'merge']:
@@ -27,7 +27,7 @@ def webhook():
         collection.insert_one(event_data)
     return jsonify({'message': 'Received webhook event'}), 200
 
-@webhookRoute.route('/events', methods=['GET'])
+@webhook.route('/events', methods=['GET'])
 def get_events():
     events = list(collection.find().sort('timestamp', -1).limit(10))
     return jsonify(events)
